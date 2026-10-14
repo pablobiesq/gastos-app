@@ -4,403 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#667eea">
-    <meta name="description" content="Tracker de gastos personal - Gestiona tus gastos fácilmente">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="💰 Gastos">
-    <title>💰 Tracker de Gastos</title>
+    <title>💰 Tracker Gastos PRO</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 16px;
-        }
-        
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 24px;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 12px;
-        }
-        
-        h1 {
-            color: #333;
-            font-size: 24px;
-            margin-bottom: 4px;
-        }
-        
-        .month-selector {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            align-items: center;
-            margin-top: 8px;
-        }
-        
-        .month-selector input {
-            padding: 10px 12px;
-            border: 2px solid #667eea;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #667eea;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .stat-box {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        
-        .stat-label {
-            font-size: 11px;
-            opacity: 0.9;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
-        }
-        
-        .stat-value {
-            font-size: 22px;
-            font-weight: bold;
-        }
-        
-        .stat-subtext {
-            font-size: 11px;
-            margin-top: 4px;
-            opacity: 0.8;
-        }
-        
-        .section {
-            margin-bottom: 20px;
-        }
-        
-        .section h2 {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: bold;
-        }
-        
-        .expense-input {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        
-        select, input, button {
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            font-family: inherit;
-            transition: all 0.3s;
-        }
-        
-        select:focus, input:focus {
-            outline: none;
-            border-color: #667eea;
-            background: #f0f5ff;
-        }
-        
-        input[type="number"] {
-            flex: 1;
-        }
-        
-        button {
-            background: #667eea;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            min-width: 80px;
-        }
-        
-        button:active {
-            background: #5568d3;
-            transform: scale(0.98);
-        }
-        
-        button.danger {
-            background: #ef4444;
-            min-width: auto;
-            padding: 8px 12px;
-            font-size: 14px;
-        }
-        
-        .budget-bar {
-            margin-bottom: 14px;
-        }
-        
-        .budget-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            font-size: 13px;
-        }
-        
-        .budget-label {
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .budget-value {
-            color: #666;
-        }
-        
-        .bar-container {
-            background: #e5e7eb;
-            border-radius: 8px;
-            height: 20px;
-            overflow: hidden;
-        }
-        
-        .bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            transition: width 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 6px;
-            color: white;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        
-        .bar-fill.over {
-            background: linear-gradient(90deg, #ef4444, #dc2626);
-        }
-        
-        .expense-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .expense-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin-bottom: 6px;
-            border-left: 4px solid #667eea;
-            gap: 8px;
-        }
-        
-        .expense-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        
-        .expense-category {
-            font-weight: bold;
-            color: #333;
-            font-size: 14px;
-        }
-        
-        .expense-date {
-            font-size: 11px;
-            color: #999;
-        }
-        
-        .expense-amount {
-            font-weight: bold;
-            color: #667eea;
-            font-size: 14px;
-            white-space: nowrap;
-        }
-        
-        .category-settings {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        
-        .category-settings input {
-            flex: 1;
-            min-width: 80px;
-        }
-        
-        .categories-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        
-        .category-tag {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: white;
-            padding: 6px 10px;
-            border-radius: 16px;
-            border: 2px solid #667eea;
-            font-size: 12px;
-        }
-        
-        .category-tag button {
-            padding: 0;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            background: #ef4444;
-            min-width: auto;
-        }
-        
-        .no-data {
-            text-align: center;
-            padding: 30px 20px;
-            color: #999;
-            font-size: 14px;
-        }
-        
-        .chart-container {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-        
-        .chart-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 12px;
-        }
-        
-        .chart-legend {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-        }
-        
-        .legend-color {
-            width: 14px;
-            height: 14px;
-            border-radius: 3px;
-            flex-shrink: 0;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 16px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; padding: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; overflow-x: auto; }
+        .tab-btn { padding: 10px 16px; border: none; background: none; cursor: pointer; font-size: 14px; font-weight: bold; color: #999; border-bottom: 3px solid transparent; white-space: nowrap; }
+        .tab-btn.active { color: #667eea; border-bottom-color: #667eea; }
+        h1 { color: #333; font-size: 22px; }
+        .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .stat-box { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px; border-radius: 12px; text-align: center; }
+        .stat-value { font-size: 18px; font-weight: bold; }
+        .section { margin-bottom: 16px; }
+        .section h2 { font-size: 13px; color: #666; margin-bottom: 10px; text-transform: uppercase; font-weight: bold; }
+        input, select, button, textarea { padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; background: #f0f5ff; }
+        button { background: #667eea; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:active { background: #5568d3; }
+        button.secondary { background: #6b7280; font-size: 12px; }
+        button.danger { background: #ef4444; }
+        .expense-item { padding: 10px; background: #f8f9fa; border-radius: 8px; margin-bottom: 6px; border-left: 3px solid #667eea; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
+        table th, table td { padding: 8px; text-align: right; border-bottom: 1px solid #e5e7eb; }
+        table th { background: #f8f9fa; font-weight: bold; }
+        table td:first-child { text-align: left; font-weight: bold; }
+        .alert { padding: 10px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 6px; margin-bottom: 12px; font-size: 12px; }
+        .alert.danger { background: #fee2e2; border-left-color: #ef4444; }
     </style>
 </head>
 <body>
     <div id="root"></div>
-
     <script type="text/babel">
         const { useState, useEffect } = React;
+        const defaultCategories = {'Ocio': 300, 'Gasolina': 100, 'Inglés': 100, 'Tabaco/café': 50, 'Coche': 600, 'Viaje': 200, 'Ropa': 210, 'Préstamo': 500, 'Universidad': 616};
 
-        const defaultCategories = {
-            'Ocio': 300,
-            'Gasolina': 100,
-            'Inglés': 100,
-            'Tabaco/café': 50,
-            'Coche': 600,
-            'Viaje': 200,
-            'Ropa': 210,
-            'Préstamo': 500,
-            'Universidad': 616
-        };
-
-        const COLORS = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe', '#43e97b', '#fa709a', '#fee140'];
-
-        function ExpenseTracker() {
+        function ExpenseTrackerPRO() {
             const [currentMonth, setCurrentMonth] = useState(new Date().toISOString().substring(0, 7));
-            const [expenses, setExpenses] = useState(() => {
-                const saved = localStorage.getItem('expenses');
-                return saved ? JSON.parse(saved) : {};
-            });
-            const [categories, setCategories] = useState(() => {
-                const saved = localStorage.getItem('categories');
-                return saved ? JSON.parse(saved) : defaultCategories;
-            });
-            const [newCategory, setNewCategory] = useState('');
-            const [newBudget, setNewBudget] = useState('');
+            const [activeTab, setActiveTab] = useState('home');
+            const [expenses, setExpenses] = useState(() => JSON.parse(localStorage.getItem('expenses') || '{}'));
+            const [categories, setCategories] = useState(() => JSON.parse(localStorage.getItem('categories') || JSON.stringify(defaultCategories)));
             const [selectedCategory, setSelectedCategory] = useState(Object.keys(categories)[0]);
             const [amount, setAmount] = useState('');
+            const [note, setNote] = useState('');
+            const [searchDate, setSearchDate] = useState('');
+            const [filterCategory, setFilterCategory] = useState('');
 
-            useEffect(() => {
-                localStorage.setItem('expenses', JSON.stringify(expenses));
-            }, [expenses]);
-
-            useEffect(() => {
-                localStorage.setItem('categories', JSON.stringify(categories));
-            }, [categories]);
+            useEffect(() => { localStorage.setItem('expenses', JSON.stringify(expenses)); }, [expenses]);
+            useEffect(() => { localStorage.setItem('categories', JSON.stringify(categories)); }, [categories]);
 
             const monthExpenses = expenses[currentMonth] || {};
             const monthData = Object.keys(categories).map(cat => ({
-                name: cat,
-                budget: categories[cat],
+                name: cat, budget: categories[cat],
                 spent: monthExpenses[cat] ? monthExpenses[cat].reduce((sum, e) => sum + e.amount, 0) : 0
             }));
 
             const totalBudget = Object.values(categories).reduce((a, b) => a + b, 0);
             const totalSpent = monthData.reduce((sum, item) => sum + item.spent, 0);
             const remaining = totalBudget - totalSpent;
-            const daysInMonth = new Date(currentMonth.split('-')[0], currentMonth.split('-')[1], 0).getDate();
-            const daysPassed = new Date().getDate();
-            const projectedTotal = daysPassed > 0 ? Math.round((totalSpent / daysPassed) * daysInMonth) : 0;
 
             const addExpense = () => {
                 if (!amount || !selectedCategory) return;
-                const newExpense = {
-                    id: Date.now(),
-                    date: new Date().toISOString().substring(0, 10),
-                    amount: parseFloat(amount),
-                    category: selectedCategory
-                };
+                const newExpense = { id: Date.now(), date: new Date().toISOString().substring(0, 10), amount: parseFloat(amount), category: selectedCategory, note };
                 setExpenses(prev => ({
                     ...prev,
-                    [currentMonth]: {
-                        ...(prev[currentMonth] || {}),
-                        [selectedCategory]: [...(prev[currentMonth]?.[selectedCategory] || []), newExpense]
-                    }
+                    [currentMonth]: {...(prev[currentMonth] || {}), [selectedCategory]: [...(prev[currentMonth]?.[selectedCategory] || []), newExpense]}
                 }));
-                setAmount('');
+                setAmount(''); setNote('');
             };
 
             const deleteExpense = (expenseId) => {
@@ -413,178 +86,166 @@
                 });
             };
 
-            const addCategory = () => {
-                if (!newCategory || !newBudget) return;
-                setCategories(prev => ({
-                    ...prev,
-                    [newCategory]: parseFloat(newBudget)
-                }));
-                setNewCategory('');
-                setNewBudget('');
-            };
+            const allExpenses = Object.keys(monthExpenses).flatMap(cat => monthExpenses[cat] || []).sort((a, b) => new Date(b.date) - new Date(a.date));
+            const filteredExpenses = allExpenses.filter(e => (!searchDate || e.date === searchDate) && (!filterCategory || e.category === filterCategory));
 
-            const removeCategory = (cat) => {
-                setCategories(prev => {
-                    const updated = { ...prev };
-                    delete updated[cat];
-                    return updated;
+            const allMonths = Object.keys(expenses).sort();
+            const monthlyStats = allMonths.map(month => {
+                const monthExp = expenses[month] || {};
+                const spent = Object.keys(monthExp).reduce((sum, cat) => sum + (monthExp[cat] ? monthExp[cat].reduce((s, e) => s + e.amount, 0) : 0), 0);
+                return { month, spent };
+            });
+
+            const avgSpending = monthlyStats.length > 0 ? (monthlyStats.reduce((sum, m) => sum + m.spent, 0) / monthlyStats.length).toFixed(0) : 0;
+            const maxSpendingMonth = monthlyStats.length > 0 ? monthlyStats.reduce((max, m) => m.spent > max.spent ? m : max) : null;
+
+            const exportCSV = () => {
+                let csv = 'Mes,Categoría,Cantidad,Fecha,Nota\n';
+                Object.keys(expenses).forEach(month => {
+                    Object.keys(expenses[month] || {}).forEach(cat => {
+                        (expenses[month][cat] || []).forEach(exp => {
+                            csv += `${month},"${cat}",${exp.amount},${exp.date},"${exp.note || ''}"\n`;
+                        });
+                    });
                 });
-                if (selectedCategory === cat && Object.keys(categories).length > 1) {
-                    setSelectedCategory(Object.keys(categories)[0]);
-                }
+                const element = document.createElement('a');
+                element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
+                element.setAttribute('download', 'gastos.csv');
+                element.click();
             };
-
-            const allExpenses = Object.keys(monthExpenses)
-                .flatMap(cat => monthExpenses[cat] || [])
-                .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            const categoryData = monthData.filter(d => d.spent > 0);
 
             return (
                 <div className="container">
-                    <div className="header">
-                        <h1>💰 Gastos</h1>
-                        <div className="month-selector">
-                            <input 
-                                type="month" 
-                                value={currentMonth} 
-                                onChange={(e) => setCurrentMonth(e.target.value)}
-                            />
-                        </div>
+                    <div className="tabs">
+                        <button className={`tab-btn ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>💰 Home</button>
+                        <button className={`tab-btn ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>📊 Stats</button>
+                        <button className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>📜 Historial</button>
                     </div>
 
-                    <div className="stats">
-                        <div className="stat-box">
-                            <div className="stat-label">Presupuesto</div>
-                            <div className="stat-value">{totalBudget.toFixed(0)}€</div>
-                        </div>
-                        <div className="stat-box">
-                            <div className="stat-label">Gastado</div>
-                            <div className="stat-value">{totalSpent.toFixed(0)}€</div>
-                            <div className="stat-subtext">{((totalSpent/totalBudget)*100).toFixed(0)}%</div>
-                        </div>
-                        <div className="stat-box">
-                            <div className="stat-label">Disponible</div>
-                            <div className="stat-value" style={{ color: remaining < 0 ? '#ff6b6b' : '#fff' }}>
-                                {remaining.toFixed(0)}€
+                    {activeTab === 'home' && (
+                        <>
+                            <h1 style={{textAlign: 'center'}}>💰 Gastos</h1>
+                            <div style={{display: 'flex', justifyContent: 'center', marginBottom: '20px'}}>
+                                <input type="month" value={currentMonth} onChange={(e) => setCurrentMonth(e.target.value)} />
                             </div>
-                        </div>
-                    </div>
 
-                    <div className="section">
-                        <h2>➕ Nuevo Gasto</h2>
-                        <div className="expense-input">
-                            <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
-                                {Object.keys(categories).map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
-                            <input 
-                                type="number" 
-                                placeholder="€"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                step="0.01"
-                                min="0"
-                                inputMode="decimal"
-                            />
-                            <button onClick={addExpense}>✓</button>
-                        </div>
-                    </div>
-
-                    <div className="section">
-                        <h2>📊 Presupuestos</h2>
-                        {monthData.map(item => (
-                            <div key={item.name} className="budget-bar">
-                                <div className="budget-header">
-                                    <div className="budget-label">{item.name}</div>
-                                    <div className="budget-value">
-                                        {item.spent.toFixed(0)}€ / {item.budget.toFixed(0)}€
-                                    </div>
-                                </div>
-                                <div className="bar-container">
-                                    <div 
-                                        className={`bar-fill ${item.spent > item.budget ? 'over' : ''}`}
-                                        style={{ width: `${Math.min((item.spent/item.budget)*100, 100)}%` }}
-                                    >
-                                        {Math.round((item.spent/item.budget)*100)}%
-                                    </div>
-                                </div>
+                            <div className="stats">
+                                <div className="stat-box"><div>Presupuesto</div><div className="stat-value">{totalBudget.toFixed(0)}€</div></div>
+                                <div className="stat-box"><div>Gastado</div><div className="stat-value">{totalSpent.toFixed(0)}€</div></div>
+                                <div className="stat-box"><div>Disponible</div><div className="stat-value" style={{color: remaining < 0 ? '#ff6b6b' : '#fff'}}>{remaining.toFixed(0)}€</div></div>
                             </div>
-                        ))}
-                    </div>
 
-                    {categoryData.length > 0 && (
-                        <div className="chart-container">
-                            <div className="chart-title">📈 Distribución</div>
-                            <div className="chart-legend">
-                                {categoryData.map((item, idx) => (
-                                    <div key={item.name} className="legend-item">
-                                        <div className="legend-color" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></div>
-                                        <span>{item.name}: {item.spent.toFixed(0)}€ ({((item.spent/(categoryData.reduce((s, d) => s + d.spent, 0)))*100).toFixed(0)}%)</span>
+                            {remaining < 0 && <div className="alert danger">⚠️ Superaste {Math.abs(remaining).toFixed(0)}€</div>}
+                            {totalSpent > totalBudget * 0.8 && remaining >= 0 && <div className="alert">⚠️ 80% gastado</div>}
+
+                            <div className="section">
+                                <h2>➕ Nuevo</h2>
+                                <div style={{display: 'flex', gap: '8px', marginBottom: '8px'}}>
+                                    <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>{Object.keys(categories).map(cat => <option key={cat}>{cat}</option>)}</select>
+                                    <input type="number" placeholder="€" value={amount} onChange={(e) => setAmount(e.target.value)} step="0.01" min="0" />
+                                    <button onClick={addExpense}>✓</button>
+                                </div>
+                                <textarea placeholder="Nota" value={note} onChange={(e) => setNote(e.target.value)} style={{width: '100%', height: '50px'}}></textarea>
+                            </div>
+
+                            <div className="section">
+                                <h2>Presupuestos</h2>
+                                {monthData.map(item => (
+                                    <div key={item.name}>
+                                        <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px'}}><strong>{item.name}</strong><span>{item.spent.toFixed(0)}€ / {item.budget.toFixed(0)}€</span></div>
+                                        <div style={{background: '#e5e7eb', borderRadius: '6px', height: '16px', overflow: 'hidden'}}><div style={{height: '100%', background: item.spent > item.budget ? 'linear-gradient(90deg, #ef4444, #dc2626)' : 'linear-gradient(90deg, #667eea, #764ba2)', width: `${Math.min((item.spent/item.budget)*100, 100)}%`}}></div></div>
                                     </div>
                                 ))}
                             </div>
-                        </div>
-                    )}
 
-                    {allExpenses.length > 0 && (
-                        <div className="section">
-                            <h2>💳 Últimos Gastos</h2>
-                            <div className="expense-list">
-                                {allExpenses.map(expense => (
-                                    <div key={expense.id} className="expense-item">
-                                        <div className="expense-info">
-                                            <div className="expense-category">{expense.category}</div>
-                                            <div className="expense-date">{expense.date}</div>
+                            {filteredExpenses.length > 0 && (
+                                <div className="section">
+                                    <h2>Últimos</h2>
+                                    {filteredExpenses.slice(0, 10).map(e => (
+                                        <div key={e.id} className="expense-item">
+                                            <div><div style={{fontWeight: 'bold'}}>{e.category}</div>{e.note && <div style={{fontSize: '11px', color: '#999'}}>"{e.note}"</div>}<div style={{fontSize: '10px', color: '#999'}}>{e.date}</div></div>
+                                            <div style={{fontWeight: 'bold', color: '#667eea'}}>{e.amount.toFixed(2)}€</div>
+                                            <button className="danger" style={{padding: '4px 8px', fontSize: '12px'}} onClick={() => deleteExpense(e.id)}>✕</button>
                                         </div>
-                                        <div className="expense-amount">{expense.amount.toFixed(2)}€</div>
-                                        <button 
-                                            className="danger"
-                                            onClick={() => deleteExpense(expense.id)}
-                                        >
-                                            ✕
-                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )}
+
+                    {activeTab === 'stats' && (
+                        <>
+                            <h1 style={{textAlign: 'center', marginBottom: '20px'}}>📊 Stats</h1>
+                            <button className="secondary" onClick={exportCSV} style={{width: '100%', marginBottom: '16px'}}>📥 Descargar CSV</button>
+
+                            <div className="section">
+                                <h2>Global</h2>
+                                <table><tbody>
+                                    <tr><th>Métrica</th><th>Valor</th></tr>
+                                    <tr><td>Meses</td><td>{monthlyStats.length}</td></tr>
+                                    <tr><td>Promedio/mes</td><td>{avgSpending}€</td></tr>
+                                    <tr><td>Más caro</td><td>{maxSpendingMonth ? `${maxSpendingMonth.month} (${maxSpendingMonth.spent.toFixed(0)}€)` : '-'}</td></tr>
+                                    <tr><td>Total</td><td>{monthlyStats.reduce((s, m) => s + m.spent, 0).toFixed(0)}€</td></tr>
+                                </tbody></table>
+                            </div>
+
+                            <div className="section">
+                                <h2>Por Mes</h2>
+                                <table><tbody>
+                                    <tr><th>Mes</th><th>Gastado</th><th>Presupuesto</th><th>Diferencia</th></tr>
+                                    {allMonths.map(month => {
+                                        const spent = Object.keys(expenses[month] || {}).reduce((sum, cat) => sum + (expenses[month][cat] ? expenses[month][cat].reduce((s, e) => s + e.amount, 0) : 0), 0);
+                                        return <tr key={month}><td>{month}</td><td>{spent.toFixed(0)}€</td><td>{totalBudget.toFixed(0)}€</td><td style={{color: spent > totalBudget ? '#ef4444' : '#10b981'}}>{(spent - totalBudget).toFixed(0)}€</td></tr>;
+                                    })}
+                                </tbody></table>
+                            </div>
+
+                            <div className="section">
+                                <h2>Categorías</h2>
+                                <table><tbody>
+                                    <tr><th>Categoría</th><th>Total</th><th>Promedio</th></tr>
+                                    {Object.keys(categories).map(cat => {
+                                        let total = 0;
+                                        allMonths.forEach(m => { const e = expenses[m]?.[cat] || []; total += e.reduce((s, x) => s + x.amount, 0); });
+                                        return <tr key={cat}><td>{cat}</td><td>{total.toFixed(0)}€</td><td>{allMonths.length > 0 ? (total / allMonths.length).toFixed(0) : 0}€</td></tr>;
+                                    })}
+                                </tbody></table>
+                            </div>
+                        </>
+                    )}
+
+                    {activeTab === 'history' && (
+                        <>
+                            <h1 style={{textAlign: 'center', marginBottom: '20px'}}>📜 Historial</h1>
+                            <div className="section">
+                                <h2>Filtros</h2>
+                                <div style={{display: 'flex', gap: '8px', marginBottom: '8px'}}>
+                                    <input type="date" value={searchDate} onChange={(e) => setSearchDate(e.target.value)} />
+                                    <button onClick={() => setSearchDate('')} className="secondary">Limpiar</button>
+                                </div>
+                                <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} style={{width: '100%'}}>
+                                    <option value="">Todas</option>
+                                    {Object.keys(categories).map(cat => <option key={cat}>{cat}</option>)}
+                                </select>
+                            </div>
+
+                            <div className="section">
+                                <h2>Gastos ({filteredExpenses.length})</h2>
+                                {filteredExpenses.length === 0 ? <div style={{textAlign: 'center', color: '#999', padding: '20px'}}>Sin resultados</div> : filteredExpenses.map(e => (
+                                    <div key={e.id} className="expense-item">
+                                        <div><div style={{fontWeight: 'bold'}}>{e.category}</div>{e.note && <div style={{fontSize: '11px', color: '#999'}}>"{e.note}"</div>}<div style={{fontSize: '10px', color: '#999'}}>{e.date}</div></div>
+                                        <div style={{fontWeight: 'bold', color: '#667eea'}}>{e.amount.toFixed(2)}€</div>
+                                        <button className="danger" style={{padding: '4px 8px', fontSize: '12px'}} onClick={() => deleteExpense(e.id)}>✕</button>
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        </>
                     )}
-
-                    <div className="section">
-                        <h2>⚙️ Categorías</h2>
-                        <div className="category-settings">
-                            <input 
-                                type="text" 
-                                placeholder="Nueva"
-                                value={newCategory}
-                                onChange={(e) => setNewCategory(e.target.value)}
-                            />
-                            <input 
-                                type="number" 
-                                placeholder="€"
-                                value={newBudget}
-                                onChange={(e) => setNewBudget(e.target.value)}
-                                min="0"
-                                step="0.01"
-                                inputMode="decimal"
-                            />
-                            <button onClick={addCategory}>+</button>
-                        </div>
-                        <div className="categories-list">
-                            {Object.keys(categories).map(cat => (
-                                <div key={cat} className="category-tag">
-                                    <span>{cat} ({categories[cat]}€)</span>
-                                    <button onClick={() => removeCategory(cat)}>×</button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
                 </div>
             );
         }
 
-        ReactDOM.createRoot(document.getElementById('root')).render(<ExpenseTracker />);
+        ReactDOM.createRoot(document.getElementById('root')).render(<ExpenseTrackerPRO />);
     </script>
 </body>
 </html>
