@@ -1,776 +1,530 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Gastos</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-            color: #333;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 10px;
-            background: white;
-            min-height: 100vh;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header h1 {
-            font-size: 24px;
-        }
-
-        .user-info {
-            text-align: right;
-            font-size: 14px;
-        }
-
-        .login-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: #f5f5f5;
-        }
-
-        .login-box {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .login-box h1 {
-            margin-bottom: 20px;
-            color: #667eea;
-        }
-
-        .google-login-btn {
-            background: white;
-            border: 2px solid #ddd;
-            padding: 12px 24px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 20px auto;
-            transition: all 0.3s;
-        }
-
-        .google-login-btn:hover {
-            background: #f9f9f9;
-            border-color: #667eea;
-        }
-
-        .logout-btn {
-            background: #ff6b6b;
-            color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .logout-btn:hover {
-            background: #ff5252;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-        }
-
-        .tab {
-            padding: 12px 20px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            color: #999;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .input-group input,
-        .input-group select,
-        .input-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-
-        .input-group textarea {
-            resize: vertical;
-            min-height: 60px;
-        }
-
-        .btn {
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-            width: 100%;
-        }
-
-        .btn:hover {
-            background: #5568d3;
-        }
-
-        .btn-danger {
-            background: #ff6b6b;
-        }
-
-        .btn-danger:hover {
-            background: #ff5252;
-        }
-
-        .btn-secondary {
-            background: #999;
-        }
-
-        .btn-secondary:hover {
-            background: #777;
-        }
-
-        .expense-item {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .expense-info {
-            flex: 1;
-        }
-
-        .expense-amount {
-            font-size: 18px;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .expense-category {
-            color: #999;
-            font-size: 12px;
-        }
-
-        .expense-date {
-            color: #ccc;
-            font-size: 12px;
-        }
-
-        .expense-note {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .stat-card h3 {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-bottom: 10px;
-        }
-
-        .stat-card .value {
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .budget-item {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .budget-info {
-            flex: 1;
-        }
-
-        .budget-progress {
-            width: 100px;
-            height: 8px;
-            background: #ddd;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-
-        .budget-bar {
-            height: 100%;
-            background: #667eea;
-            transition: width 0.3s;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #999;
-        }
-
-        .error {
-            background: #ffe0e0;
-            color: #d32f2f;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-
-        .success {
-            background: #e0ffe0;
-            color: #00aa00;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-
-        @media (max-width: 600px) {
-            .header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-
-            .header h1 {
-                font-size: 20px;
-            }
-
-            .user-info {
-                text-align: center;
-            }
-
-            .tabs {
-                flex-wrap: wrap;
-            }
-
-            .tab {
-                font-size: 14px;
-                padding: 10px 15px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestor de Gastos</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; color: #333; }
+  .container { max-width: 800px; margin: 0 auto; padding: 12px; background: #fff; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 20px; border-radius: 10px; margin-bottom: 16px; }
+  .header h1 { font-size: 22px; }
+  .header small { opacity: .85; font-size: 13px; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 18px; border-bottom: 2px solid #eee; overflow-x: auto; }
+  .tab { padding: 10px 14px; border: none; background: none; cursor: pointer; font-size: 15px; color: #999; border-bottom: 3px solid transparent; white-space: nowrap; }
+  .tab.active { color: #667eea; border-bottom-color: #667eea; font-weight: 600; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+  .field input, .field select, .field textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; font-family: inherit; }
+  .field textarea { resize: vertical; min-height: 60px; }
+  .btn { background: #667eea; color: #fff; padding: 11px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600; width: 100%; margin-top: 4px; }
+  .btn:hover { background: #5568d3; }
+  .btn-sec { background: #888; }
+  .btn-sec:hover { background: #666; }
+  .btn-danger { background: #ff6b6b; }
+  .btn-danger:hover { background: #ff5252; }
+  .btn-small { width: auto; padding: 7px 12px; font-size: 13px; margin: 0; }
+  .row { background: #f9f9f9; padding: 12px 14px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .row-info { flex: 1; min-width: 0; }
+  .row-title { font-weight: 600; }
+  .row-sub { font-size: 12px; color: #888; margin-top: 2px; }
+  .amount { font-size: 17px; font-weight: 700; color: #667eea; }
+  .actions { display: flex; gap: 6px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 16px; border-radius: 10px; text-align: center; }
+  .card h3 { font-size: 12px; opacity: .85; font-weight: 500; margin-bottom: 6px; }
+  .card .value { font-size: 24px; font-weight: 700; }
+  .bar { height: 8px; background: #e5e5e5; border-radius: 6px; overflow: hidden; margin-top: 6px; }
+  .bar > div { height: 100%; background: #667eea; }
+  .bar > div.over { background: #ff6b6b; }
+  .msg { padding: 12px; border-radius: 6px; margin-bottom: 14px; font-size: 14px; }
+  .msg.ok { background: #e0ffe6; color: #13803a; }
+  .msg.err { background: #ffe0e0; color: #c62828; }
+  .msg.warn { background: #fff4d6; color: #8a6100; }
+  .msg .btn { margin-top: 8px; }
+  .section-title { margin: 22px 0 10px; font-size: 17px; }
+  .muted { color: #888; font-size: 13px; }
+  .empty { text-align: center; color: #999; padding: 30px; }
+  .sep { border-top: 1px solid #eee; margin: 22px 0; }
+  @media (max-width: 600px) { .header h1 { font-size: 19px; } .tab { font-size: 14px; padding: 9px 10px; } }
+</style>
 </head>
 <body>
-    <div id="root"></div>
+<div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
 
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAQgb3Mv_7PgGde8MxGOXfu_mAl-23HqmI",
-            authDomain: "gastos-app-3f2e8.firebaseapp.com",
-            projectId: "gastos-app-3f2e8",
-            storageBucket: "gastos-app-3f2e8.firebasestorage.app",
-            messagingSenderId: "174581028716",
-            appId: "1:174581028716:web:7b2d4c9e980091a3ea4549"
-        };
+const STORAGE_KEY = 'gastos-app-data-v2';
+const LAST_BACKUP_KEY = 'gastos-app-last-backup';
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+const DEFAULT_CATEGORIES = [
+  { id: 'c1', name: 'Ocio', budget: 300 },
+  { id: 'c2', name: 'Gasolina', budget: 100 },
+  { id: 'c3', name: 'Inglés', budget: 100 },
+  { id: 'c4', name: 'Tabaco/café', budget: 50 },
+  { id: 'c5', name: 'Coche', budget: 600 },
+  { id: 'c6', name: 'Viaje', budget: 200 },
+  { id: 'c7', name: 'Ropa', budget: 210 },
+  { id: 'c8', name: 'Préstamo', budget: 500 },
+  { id: 'c9', name: 'Universidad', budget: 616 }
+];
 
-        // Google Sign-In Provider
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 
-        function App() {
-            const [user, setUser] = useState(null);
-            const [loading, setLoading] = useState(true);
-            const [expenses, setExpenses] = useState([]);
-            const [categories, setCategories] = useState([]);
-            const [activeTab, setActiveTab] = useState('home');
-            const [newExpense, setNewExpense] = useState({ amount: '', category: '', note: '', date: new Date().toISOString().split('T')[0] });
-            const [editingCategory, setEditingCategory] = useState(null);
-            const [newCategoryName, setNewCategoryName] = useState('');
-            const [newCategoryBudget, setNewCategoryBudget] = useState('');
-            const [message, setMessage] = useState('');
+const today = () => {
+  const d = new Date();
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+};
 
-            // Monitor auth changes
-            useEffect(() => {
-                const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-                    setUser(currentUser);
-                    setLoading(false);
+const monthOf = (dateStr) => String(dateStr).slice(0, 7);
 
-                    if (currentUser) {
-                        loadUserData(currentUser.uid);
-                    }
-                });
+const shiftMonth = (key, delta) => {
+  const [y, m] = key.split('-').map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+};
 
-                return unsubscribe;
-            }, []);
+const parseAmount = (v) => parseFloat(String(v).replace(',', '.'));
 
-            // Load user data from Firestore
-            const loadUserData = async (userId) => {
-                try {
-                    // Load expenses
-                    const expensesSnapshot = await db.collection('users').doc(userId).collection('expenses').orderBy('date', 'desc').get();
-                    setExpenses(expensesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+const normalizeExpenses = (list) => list
+  .map(x => ({
+    id: x.id ? String(x.id) : newId(),
+    amount: Number(x.amount ?? x.monto) || 0,
+    category: String(x.category ?? x.categoria ?? 'Sin categoría'),
+    note: String(x.note ?? x.nota ?? ''),
+    date: String(x.date ?? x.fecha ?? today()).slice(0, 10)
+  }))
+  .filter(e => e.amount > 0);
 
-                    // Load categories
-                    const categoriesSnapshot = await db.collection('users').doc(userId).collection('categories').get();
-                    const cats = categoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    setCategories(cats.length > 0 ? cats : getDefaultCategories());
-                } catch (error) {
-                    console.error('Error loading data:', error);
-                }
-            };
+const normalizeCategories = (list) => list.map(c => ({
+  id: c.id ? String(c.id) : newId(),
+  name: String(c.name),
+  budget: Number(c.budget) || 0
+}));
 
-            const getDefaultCategories = () => [
-                { id: 'ocio', name: 'Ocio', budget: 300 },
-                { id: 'gasolina', name: 'Gasolina', budget: 100 },
-                { id: 'ingles', name: 'Inglés', budget: 100 },
-                { id: 'tabaco', name: 'Tabaco/café', budget: 50 },
-                { id: 'coche', name: 'Coche', budget: 600 },
-                { id: 'viaje', name: 'Viaje', budget: 200 },
-                { id: 'ropa', name: 'Ropa', budget: 210 },
-                { id: 'prestamo', name: 'Préstamo', budget: 500 },
-                { id: 'universidad', name: 'Universidad', budget: 616 }
-            ];
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    return {
+      expenses: Array.isArray(d.expenses) ? d.expenses : [],
+      categories: Array.isArray(d.categories) && d.categories.length ? d.categories : DEFAULT_CATEGORIES
+    };
+  } catch (e) {
+    return null;
+  }
+}
 
-            const handleGoogleLogin = async () => {
-                try {
-                    await auth.signInWithRedirect(googleProvider);
-                } catch (error) {
-                    console.error('Login error:', error);
-                    showMessage('Error al conectar: ' + error.message, 'error');
-                }
-            };
+function saveData(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) { console.error(e); }
+}
 
-            const handleLogout = async () => {
-                try {
-                    await auth.signOut();
-                    setExpenses([]);
-                    setCategories([]);
-                    setNewExpense({ amount: '', category: '', note: '', date: new Date().toISOString().split('T')[0] });
-                    showMessage('Sesión cerrada', 'success');
-                } catch (error) {
-                    showMessage('Error al cerrar sesión: ' + error.message, 'error');
-                }
-            };
-
-            const addExpense = async () => {
-                if (!newExpense.amount || !newExpense.category) {
-                    showMessage('Por favor completa monto y categoría', 'error');
-                    return;
-                }
-
-                try {
-                    await db.collection('users').doc(user.uid).collection('expenses').add({
-                        amount: parseFloat(newExpense.amount),
-                        category: newExpense.category,
-                        note: newExpense.note,
-                        date: newExpense.date,
-                        timestamp: new Date()
-                    });
-
-                    setNewExpense({ amount: '', category: '', note: '', date: new Date().toISOString().split('T')[0] });
-                    loadUserData(user.uid);
-                    showMessage('Gasto añadido ✓', 'success');
-                } catch (error) {
-                    showMessage('Error al añadir gasto: ' + error.message, 'error');
-                }
-            };
-
-            const deleteExpense = async (expenseId) => {
-                try {
-                    await db.collection('users').doc(user.uid).collection('expenses').doc(expenseId).delete();
-                    loadUserData(user.uid);
-                    showMessage('Gasto eliminado', 'success');
-                } catch (error) {
-                    showMessage('Error al eliminar: ' + error.message, 'error');
-                }
-            };
-
-            const saveCategory = async () => {
-                if (!newCategoryName || !newCategoryBudget) {
-                    showMessage('Por favor completa nombre y presupuesto', 'error');
-                    return;
-                }
-
-                try {
-                    const categoryId = editingCategory?.id || newCategoryName.toLowerCase().replace(/ /g, '_');
-
-                    if (editingCategory) {
-                        await db.collection('users').doc(user.uid).collection('categories').doc(editingCategory.id).update({
-                            name: newCategoryName,
-                            budget: parseFloat(newCategoryBudget)
-                        });
-                    } else {
-                        await db.collection('users').doc(user.uid).collection('categories').doc(categoryId).set({
-                            name: newCategoryName,
-                            budget: parseFloat(newCategoryBudget)
-                        });
-                    }
-
-                    setNewCategoryName('');
-                    setNewCategoryBudget('');
-                    setEditingCategory(null);
-                    loadUserData(user.uid);
-                    showMessage(editingCategory ? 'Categoría actualizada ✓' : 'Categoría añadida ✓', 'success');
-                } catch (error) {
-                    showMessage('Error: ' + error.message, 'error');
-                }
-            };
-
-            const deleteCategory = async (categoryId) => {
-                try {
-                    await db.collection('users').doc(user.uid).collection('categories').doc(categoryId).delete();
-                    loadUserData(user.uid);
-                    showMessage('Categoría eliminada', 'success');
-                } catch (error) {
-                    showMessage('Error: ' + error.message, 'error');
-                }
-            };
-
-            const showMessage = (msg, type) => {
-                setMessage({ text: msg, type });
-                setTimeout(() => setMessage(''), 3000);
-            };
-
-            const exportToCSV = () => {
-                let csv = 'Fecha,Categoría,Monto,Nota\n';
-                expenses.forEach(exp => {
-                    csv += `${exp.date},${exp.category},${exp.amount},${exp.note || ''}\n`;
-                });
-
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'gastos.csv';
-                a.click();
-            };
-
-            const getMonthlyStats = () => {
-                const currentMonth = new Date().toISOString().slice(0, 7);
-                const monthlyExpenses = expenses.filter(e => e.date.startsWith(currentMonth));
-                return {
-                    total: monthlyExpenses.reduce((sum, e) => sum + e.amount, 0),
-                    count: monthlyExpenses.length,
-                    byCategory: monthlyExpenses.reduce((acc, e) => {
-                        acc[e.category] = (acc[e.category] || 0) + e.amount;
-                        return acc;
-                    }, {})
-                };
-            };
-
-            if (loading) {
-                return <div className="loading">Cargando...</div>;
-            }
-
-            if (!user) {
-                return (
-                    <div className="login-screen">
-                        <div className="login-box">
-                            <h1>💰 Gestor de Gastos</h1>
-                            <p>Sincroniza tus gastos con Google y Drive</p>
-                            <button className="google-login-btn" onClick={handleGoogleLogin}>
-                                <span>🔵</span>
-                                Conectar con Google
-                            </button>
-                            {message && (
-                                <div className={message.type === 'error' ? 'error' : 'success'}>
-                                    {message.text}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                );
-            }
-
-            const monthlyStats = getMonthlyStats();
-
-            return (
-                <div className="container">
-                    <div className="header">
-                        <h1>💰 Mis Gastos</h1>
-                        <div className="user-info">
-                            <div>{user.email}</div>
-                            <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-                        </div>
-                    </div>
-
-                    {message && (
-                        <div className={message.type === 'error' ? 'error' : 'success'}>
-                            {message.text}
-                        </div>
-                    )}
-
-                    <div className="tabs">
-                        <button className={`tab ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>
-                            ➕ Inicio
-                        </button>
-                        <button className={`tab ${activeTab === 'categories' ? 'active' : ''}`} onClick={() => setActiveTab('categories')}>
-                            🏷️ Categorías
-                        </button>
-                        <button className={`tab ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>
-                            📊 Estadísticas
-                        </button>
-                        <button className={`tab ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>
-                            📋 Historial
-                        </button>
-                    </div>
-
-                    {/* HOME TAB */}
-                    {activeTab === 'home' && (
-                        <div>
-                            <div className="input-group">
-                                <label>Monto (€)</label>
-                                <input
-                                    type="number"
-                                    value={newExpense.amount}
-                                    onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})}
-                                    placeholder="0.00"
-                                    step="0.01"
-                                />
-                            </div>
-
-                            <div className="input-group">
-                                <label>Categoría</label>
-                                <select
-                                    value={newExpense.category}
-                                    onChange={(e) => setNewExpense({...newExpense, category: e.target.value})}
-                                >
-                                    <option value="">Selecciona una categoría</option>
-                                    {categories.map(cat => (
-                                        <option key={cat.id} value={cat.name}>{cat.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="input-group">
-                                <label>Fecha</label>
-                                <input
-                                    type="date"
-                                    value={newExpense.date}
-                                    onChange={(e) => setNewExpense({...newExpense, date: e.target.value})}
-                                />
-                            </div>
-
-                            <div className="input-group">
-                                <label>Nota (opcional)</label>
-                                <textarea
-                                    value={newExpense.note}
-                                    onChange={(e) => setNewExpense({...newExpense, note: e.target.value})}
-                                    placeholder="Detalles del gasto"
-                                />
-                            </div>
-
-                            <button className="btn" onClick={addExpense}>Agregar Gasto</button>
-                        </div>
-                    )}
-
-                    {/* CATEGORIES TAB */}
-                    {activeTab === 'categories' && (
-                        <div>
-                            <div className="input-group">
-                                <label>Nombre de categoría</label>
-                                <input
-                                    type="text"
-                                    value={newCategoryName}
-                                    onChange={(e) => setNewCategoryName(e.target.value)}
-                                    placeholder="Ej: Comida"
-                                />
-                            </div>
-
-                            <div className="input-group">
-                                <label>Presupuesto (€)</label>
-                                <input
-                                    type="number"
-                                    value={newCategoryBudget}
-                                    onChange={(e) => setNewCategoryBudget(e.target.value)}
-                                    placeholder="0.00"
-                                    step="0.01"
-                                />
-                            </div>
-
-                            <button className="btn" onClick={saveCategory}>
-                                {editingCategory ? 'Actualizar' : 'Crear'} Categoría
-                            </button>
-
-                            {editingCategory && (
-                                <button className="btn btn-secondary" onClick={() => {
-                                    setEditingCategory(null);
-                                    setNewCategoryName('');
-                                    setNewCategoryBudget('');
-                                }} style={{ marginTop: '10px' }}>Cancelar edición</button>
-                            )}
-
-                            <h3 style={{ marginTop: '30px', marginBottom: '15px' }}>Categorías actuales</h3>
-                            {categories.map(cat => (
-                                <div key={cat.id} className="budget-item">
-                                    <div className="budget-info">
-                                        <div><strong>{cat.name}</strong></div>
-                                        <div style={{ fontSize: '12px', color: '#999' }}>Presupuesto: €{cat.budget.toFixed(2)}</div>
-                                    </div>
-                                    <div style={{ display: 'flex', gap: '10px' }}>
-                                        <button className="btn btn-secondary" onClick={() => {
-                                            setEditingCategory(cat);
-                                            setNewCategoryName(cat.name);
-                                            setNewCategoryBudget(cat.budget.toString());
-                                        }}>Editar</button>
-                                        <button className="btn btn-danger" onClick={() => deleteCategory(cat.id)}>Eliminar</button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* STATS TAB */}
-                    {activeTab === 'stats' && (
-                        <div>
-                            <h2>Mes actual</h2>
-                            <div className="stats-grid">
-                                <div className="stat-card">
-                                    <h3>Total gastado</h3>
-                                    <div className="value">€{monthlyStats.total.toFixed(2)}</div>
-                                </div>
-                                <div className="stat-card">
-                                    <h3>Número de gastos</h3>
-                                    <div className="value">{monthlyStats.count}</div>
-                                </div>
-                                <div className="stat-card">
-                                    <h3>Promedio por gasto</h3>
-                                    <div className="value">€{monthlyStats.count > 0 ? (monthlyStats.total / monthlyStats.count).toFixed(2) : '0.00'}</div>
-                                </div>
-                            </div>
-
-                            <h3>Por categoría</h3>
-                            {categories.map(cat => {
-                                const spent = monthlyStats.byCategory[cat.name] || 0;
-                                const percentage = Math.min(100, (spent / cat.budget) * 100);
-                                const isOverBudget = spent > cat.budget;
-
-                                return (
-                                    <div key={cat.id} className="budget-item">
-                                        <div className="budget-info">
-                                            <div><strong>{cat.name}</strong></div>
-                                            <div style={{ fontSize: '12px', color: isOverBudget ? '#ff6b6b' : '#999' }}>
-                                                €{spent.toFixed(2)} / €{cat.budget.toFixed(2)} {isOverBudget && '⚠️'}
-                                            </div>
-                                            <div className="budget-progress">
-                                                <div className="budget-bar" style={{ width: `${percentage}%`, background: isOverBudget ? '#ff6b6b' : '#667eea' }}></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-
-                            <button className="btn" onClick={exportToCSV} style={{ marginTop: '20px' }}>
-                                📥 Descargar CSV
-                            </button>
-                        </div>
-                    )}
-
-                    {/* HISTORY TAB */}
-                    {activeTab === 'history' && (
-                        <div>
-                            <h3>Todos los gastos ({expenses.length})</h3>
-                            {expenses.length === 0 ? (
-                                <div className="loading">No hay gastos registrados</div>
-                            ) : (
-                                expenses.map(expense => (
-                                    <div key={expense.id} className="expense-item">
-                                        <div className="expense-info">
-                                            <div className="expense-category">{expense.category}</div>
-                                            <div className="expense-amount">€{expense.amount.toFixed(2)}</div>
-                                            {expense.note && <div className="expense-note">{expense.note}</div>}
-                                            <div className="expense-date">{expense.date}</div>
-                                        </div>
-                                        <button className="btn btn-danger" onClick={() => deleteExpense(expense.id)}>Eliminar</button>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    )}
-                </div>
-            );
+// Busca gastos y categorías guardados por versiones anteriores de la app en este navegador
+function findLegacyData() {
+  const res = { expenses: [], categories: [] };
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key === STORAGE_KEY) continue;
+      let val;
+      try { val = JSON.parse(localStorage.getItem(key)); } catch (e) { continue; }
+      const lists = Array.isArray(val)
+        ? [val]
+        : (val && typeof val === 'object' ? Object.values(val).filter(Array.isArray) : []);
+      lists.forEach(arr => {
+        if (arr.length && arr.every(x => x && typeof x === 'object' && 'amount' in x && 'category' in x)) {
+          res.expenses.push(...arr);
         }
+        if (arr.length && arr.every(x => x && typeof x === 'object' && 'name' in x && 'budget' in x)) {
+          res.categories.push(...arr);
+        }
+      });
+    }
+  } catch (e) { console.error(e); }
+  return res;
+}
 
-        ReactDOM.render(<App />, document.getElementById('root'));
-    </script>
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function App() {
+  const [data, setData] = useState(() => loadData() || { expenses: [], categories: DEFAULT_CATEGORIES });
+  const [tab, setTab] = useState('home');
+  const [msg, setMsg] = useState(null);
+  const [legacy, setLegacy] = useState(null);
+  const [lastBackup, setLastBackup] = useState(() => localStorage.getItem(LAST_BACKUP_KEY));
+  const [form, setForm] = useState({ amount: '', category: '', note: '', date: today() });
+  const [catForm, setCatForm] = useState({ id: null, name: '', budget: '' });
+  const replaceInput = useRef(null);
+  const mergeInput = useRef(null);
+
+  useEffect(() => { saveData(data); }, [data]);
+
+  useEffect(() => {
+    if (data.expenses.length === 0) {
+      const found = findLegacyData();
+      if (found.expenses.length) setLegacy(found);
+    }
+  }, []);
+
+  const notify = (text, type = 'ok') => {
+    setMsg({ text, type });
+    setTimeout(() => setMsg(null), 3500);
+  };
+
+  // ---------- Gastos ----------
+  const addExpense = () => {
+    const amount = parseAmount(form.amount);
+    if (!isFinite(amount) || amount <= 0 || !form.category) {
+      return notify('Pon un importe válido y una categoría', 'err');
+    }
+    setData(d => ({
+      ...d,
+      expenses: [{ id: newId(), amount, category: form.category, note: form.note.trim(), date: form.date }, ...d.expenses]
+    }));
+    setForm({ ...form, amount: '', note: '' });
+    notify('Gasto añadido ✓');
+  };
+
+  const deleteExpense = (id) => {
+    if (!confirm('¿Eliminar este gasto?')) return;
+    setData(d => ({ ...d, expenses: d.expenses.filter(e => e.id !== id) }));
+  };
+
+  // ---------- Categorías ----------
+  const saveCategory = () => {
+    const name = catForm.name.trim();
+    const budget = parseAmount(catForm.budget);
+    if (!name || !isFinite(budget) || budget < 0) return notify('Pon nombre y presupuesto', 'err');
+    if (data.categories.some(c => c.id !== catForm.id && c.name.toLowerCase() === name.toLowerCase())) {
+      return notify('Ya existe una categoría con ese nombre', 'err');
+    }
+    setData(d => {
+      const old = catForm.id ? d.categories.find(c => c.id === catForm.id) : null;
+      const categories = old
+        ? d.categories.map(c => c.id === catForm.id ? { ...c, name, budget } : c)
+        : [...d.categories, { id: newId(), name, budget }];
+      // Si se renombra, los gastos antiguos pasan al nuevo nombre
+      const expenses = old && old.name !== name
+        ? d.expenses.map(e => e.category === old.name ? { ...e, category: name } : e)
+        : d.expenses;
+      return { categories, expenses };
+    });
+    setCatForm({ id: null, name: '', budget: '' });
+    notify('Categoría guardada ✓');
+  };
+
+  const deleteCategory = (cat) => {
+    if (!confirm(`¿Eliminar la categoría "${cat.name}"? Sus gastos se conservan.`)) return;
+    setData(d => ({ ...d, categories: d.categories.filter(c => c.id !== cat.id) }));
+  };
+
+  // ---------- Copia de seguridad ----------
+  const exportBackup = () => {
+    const payload = {
+      app: 'gastos',
+      version: 2,
+      exportedAt: new Date().toISOString(),
+      expenses: data.expenses,
+      categories: data.categories
+    };
+    downloadBlob(
+      new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }),
+      `gastos-copia-${today()}.json`
+    );
+    const now = new Date().toISOString();
+    localStorage.setItem(LAST_BACKUP_KEY, now);
+    setLastBackup(now);
+    notify('Copia descargada ✓. Guárdala en un lugar seguro.');
+  };
+
+  const importBackup = (file, replace) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const p = JSON.parse(reader.result);
+        if (!p || !Array.isArray(p.expenses)) throw new Error('el archivo no es una copia válida');
+        const incomingExp = normalizeExpenses(p.expenses);
+        const incomingCat = Array.isArray(p.categories) ? normalizeCategories(p.categories) : [];
+        setData(d => {
+          if (replace) {
+            return {
+              expenses: incomingExp,
+              categories: incomingCat.length ? incomingCat : d.categories
+            };
+          }
+          const existingIds = new Set(d.expenses.map(e => e.id));
+          const fresh = incomingExp.filter(e => !existingIds.has(e.id));
+          const cats = [...d.categories];
+          incomingCat.forEach(c => {
+            if (!cats.some(x => x.name.toLowerCase() === c.name.toLowerCase())) cats.push(c);
+          });
+          return { expenses: [...fresh, ...d.expenses], categories: cats };
+        });
+        notify(`Copia importada: ${incomingExp.length} gastos`);
+      } catch (e) {
+        notify('No se pudo importar: ' + e.message, 'err');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const onPickFile = (e, replace) => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    if (replace && !confirm('Esto sustituirá TODOS los datos actuales por los de la copia. ¿Continuar?')) return;
+    importBackup(file, replace);
+  };
+
+  const importLegacy = () => {
+    setData({
+      expenses: normalizeExpenses(legacy.expenses),
+      categories: legacy.categories.length ? normalizeCategories(legacy.categories) : DEFAULT_CATEGORIES
+    });
+    setLegacy(null);
+    notify('Datos anteriores importados ✓');
+  };
+
+  const exportCSV = () => {
+    let csv = 'Fecha,Categoría,Monto,Nota\n';
+    data.expenses.forEach(e => {
+      csv += `${e.date},"${e.category}",${e.amount},"${(e.note || '').replace(/"/g, '""')}"\n`;
+    });
+    downloadBlob(new Blob([csv], { type: 'text/csv' }), `gastos-${today()}.csv`);
+  };
+
+  // ---------- Estadísticas ----------
+  const thisMonth = monthOf(today());
+  const lastMonth = shiftMonth(thisMonth, -1);
+  const totalFor = (k) => data.expenses.filter(e => monthOf(e.date) === k).reduce((s, e) => s + e.amount, 0);
+  const spentByCat = (k) => data.expenses
+    .filter(e => monthOf(e.date) === k)
+    .reduce((acc, e) => { acc[e.category] = (acc[e.category] || 0) + e.amount; return acc; }, {});
+
+  const totalNow = totalFor(thisMonth);
+  const totalPrev = totalFor(lastMonth);
+  const diff = totalPrev > 0 ? ((totalNow - totalPrev) / totalPrev) * 100 : null;
+
+  const monthlyTotals = {};
+  data.expenses.forEach(e => { const k = monthOf(e.date); monthlyTotals[k] = (monthlyTotals[k] || 0) + e.amount; });
+  const monthKeys = Object.keys(monthlyTotals).sort().reverse().slice(0, 12);
+  const maxMonth = Math.max(1, ...monthKeys.map(k => monthlyTotals[k]));
+
+  const backupAgeDays = lastBackup ? (Date.now() - new Date(lastBackup).getTime()) / 864e5 : Infinity;
+  const showReminder = data.expenses.length > 0 && backupAgeDays > 7;
+
+  // ---------- Vistas ----------
+  const tabs = [
+    ['home', '➕ Inicio'],
+    ['categories', '🏷️ Categorías'],
+    ['stats', '📊 Estadísticas'],
+    ['history', '📋 Historial'],
+    ['backup', '💾 Copia']
+  ];
+
+  return (
+    <div className="container">
+      <div className="header">
+        <h1>💰 Gestor de Gastos</h1>
+        <small>{data.expenses.length} gastos guardados en este navegador</small>
+      </div>
+
+      {legacy && (
+        <div className="msg warn">
+          Hemos encontrado {legacy.expenses.length} gastos de una versión anterior en este navegador. ¿Quieres importarlos?
+          <button className="btn" onClick={importLegacy}>Importar datos anteriores</button>
+          <button className="btn btn-sec" onClick={() => setLegacy(null)}>No, gracias</button>
+        </div>
+      )}
+
+      {showReminder && (
+        <div className="msg warn">
+          {lastBackup ? 'Hace más de una semana que no descargas una copia.' : 'Aún no has descargado ninguna copia de seguridad.'}
+          {' '}Ve a la pestaña 💾 Copia para guardarla y no perder tus datos.
+        </div>
+      )}
+
+      {msg && <div className={'msg ' + msg.type}>{msg.text}</div>}
+
+      <div className="tabs">
+        {tabs.map(([id, label]) => (
+          <button key={id} className={'tab ' + (tab === id ? 'active' : '')} onClick={() => setTab(id)}>{label}</button>
+        ))}
+      </div>
+
+      {/* INICIO */}
+      {tab === 'home' && (
+        <div>
+          <div className="field">
+            <label>Importe (€)</label>
+            <input type="number" inputMode="decimal" step="0.01" placeholder="0.00"
+              value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} />
+          </div>
+          <div className="field">
+            <label>Categoría</label>
+            <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+              <option value="">Selecciona una categoría</option>
+              {data.categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+            </select>
+          </div>
+          <div className="field">
+            <label>Fecha</label>
+            <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
+          </div>
+          <div className="field">
+            <label>Nota (opcional)</label>
+            <textarea placeholder="Detalles del gasto" value={form.note}
+              onChange={e => setForm({ ...form, note: e.target.value })} />
+          </div>
+          <button className="btn" onClick={addExpense}>Agregar gasto</button>
+        </div>
+      )}
+
+      {/* CATEGORÍAS */}
+      {tab === 'categories' && (
+        <div>
+          <div className="field">
+            <label>{catForm.id ? 'Editar categoría' : 'Nueva categoría'}: nombre</label>
+            <input type="text" placeholder="Ej: Comida" value={catForm.name}
+              onChange={e => setCatForm({ ...catForm, name: e.target.value })} />
+          </div>
+          <div className="field">
+            <label>Presupuesto mensual (€)</label>
+            <input type="number" inputMode="decimal" step="0.01" placeholder="0.00" value={catForm.budget}
+              onChange={e => setCatForm({ ...catForm, budget: e.target.value })} />
+          </div>
+          <button className="btn" onClick={saveCategory}>{catForm.id ? 'Guardar cambios' : 'Crear categoría'}</button>
+          {catForm.id && (
+            <button className="btn btn-sec" style={{ marginTop: 8 }}
+              onClick={() => setCatForm({ id: null, name: '', budget: '' })}>Cancelar edición</button>
+          )}
+
+          <h3 className="section-title">Categorías actuales</h3>
+          {data.categories.map(c => (
+            <div key={c.id} className="row">
+              <div className="row-info">
+                <div className="row-title">{c.name}</div>
+                <div className="row-sub">Presupuesto: €{c.budget.toFixed(2)}</div>
+              </div>
+              <div className="actions">
+                <button className="btn btn-sec btn-small"
+                  onClick={() => setCatForm({ id: c.id, name: c.name, budget: String(c.budget) })}>Editar</button>
+                <button className="btn btn-danger btn-small" onClick={() => deleteCategory(c)}>Eliminar</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ESTADÍSTICAS */}
+      {tab === 'stats' && (
+        <div>
+          <div className="cards">
+            <div className="card">
+              <h3>Gastado este mes</h3>
+              <div className="value">€{totalNow.toFixed(2)}</div>
+            </div>
+            <div className="card">
+              <h3>Mes anterior</h3>
+              <div className="value">€{totalPrev.toFixed(2)}</div>
+            </div>
+            <div className="card">
+              <h3>Variación</h3>
+              <div className="value">{diff === null ? '—' : (diff > 0 ? '+' : '') + diff.toFixed(0) + '%'}</div>
+            </div>
+          </div>
+
+          <h3 className="section-title">Presupuesto del mes ({thisMonth})</h3>
+          {data.categories.map(c => {
+            const spent = spentByCat(thisMonth)[c.name] || 0;
+            const pct = c.budget > 0 ? Math.min(100, (spent / c.budget) * 100) : 0;
+            const over = c.budget > 0 && spent > c.budget;
+            return (
+              <div key={c.id} className="row" style={{ display: 'block' }}>
+                <div className="row-title">{c.name} {over && '⚠️'}</div>
+                <div className="row-sub">€{spent.toFixed(2)} de €{c.budget.toFixed(2)}</div>
+                <div className="bar"><div className={over ? 'over' : ''} style={{ width: pct + '%' }}></div></div>
+              </div>
+            );
+          })}
+
+          <h3 className="section-title">Últimos meses</h3>
+          {monthKeys.length === 0 && <div className="empty">Aún no hay gastos</div>}
+          {monthKeys.map(k => (
+            <div key={k} className="row" style={{ display: 'block' }}>
+              <div className="row-title">{k} · €{monthlyTotals[k].toFixed(2)}</div>
+              <div className="bar"><div style={{ width: (monthlyTotals[k] / maxMonth) * 100 + '%' }}></div></div>
+            </div>
+          ))}
+
+          <button className="btn" style={{ marginTop: 16 }} onClick={exportCSV}>📥 Descargar CSV</button>
+        </div>
+      )}
+
+      {/* HISTORIAL */}
+      {tab === 'history' && (
+        <div>
+          <h3 className="section-title">Todos los gastos ({data.expenses.length})</h3>
+          {data.expenses.length === 0 && <div className="empty">No hay gastos registrados</div>}
+          {data.expenses.map(e => (
+            <div key={e.id} className="row">
+              <div className="row-info">
+                <div className="row-sub">{e.date} · {e.category}</div>
+                <div className="amount">€{e.amount.toFixed(2)}</div>
+                {e.note && <div className="row-sub">{e.note}</div>}
+              </div>
+              <button className="btn btn-danger btn-small" onClick={() => deleteExpense(e.id)}>Eliminar</button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* COPIA */}
+      {tab === 'backup' && (
+        <div>
+          <p className="muted" style={{ marginBottom: 14 }}>
+            Tus datos se guardan en este navegador. Si borras los datos del navegador o cambias de móvil, los perderás.
+            Descarga una copia de seguridad de vez en cuando y guárdala en un lugar seguro (Drive, correo, etc.).
+          </p>
+          <p style={{ marginBottom: 14 }}>
+            <strong>Última copia:</strong> {lastBackup ? new Date(lastBackup).toLocaleString('es-ES') : 'nunca'}
+          </p>
+
+          <button className="btn" onClick={exportBackup}>💾 Descargar copia de seguridad</button>
+
+          <h3 className="section-title">Restaurar una copia</h3>
+          <button className="btn btn-sec" onClick={() => mergeInput.current.click()}>
+            Restaurar y combinar con los datos actuales
+          </button>
+          <button className="btn btn-danger" style={{ marginTop: 8 }} onClick={() => replaceInput.current.click()}>
+            Restaurar y sustituir todos los datos
+          </button>
+          <input ref={mergeInput} type="file" accept="application/json,.json" style={{ display: 'none' }}
+            onChange={e => onPickFile(e, false)} />
+          <input ref={replaceInput} type="file" accept="application/json,.json" style={{ display: 'none' }}
+            onChange={e => onPickFile(e, true)} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
 </body>
 </html>
