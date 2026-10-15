@@ -412,8 +412,7 @@
 
             const handleGoogleLogin = async () => {
                 try {
-                    await auth.signInWithPopup(googleProvider);
-                    showMessage('¡Conectado correctamente!', 'success');
+                    await auth.signInWithRedirect(googleProvider);
                 } catch (error) {
                     console.error('Login error:', error);
                     showMessage('Error al conectar: ' + error.message, 'error');
@@ -552,6 +551,11 @@
                                 <span>🔵</span>
                                 Conectar con Google
                             </button>
+                            {message && (
+                                <div className={message.type === 'error' ? 'error' : 'success'}>
+                                    {message.text}
+                                </div>
+                            )}
                         </div>
                     </div>
                 );
